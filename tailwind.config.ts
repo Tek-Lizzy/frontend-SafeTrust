@@ -54,6 +54,9 @@ export default {
           "active-foreground": "hsl(var(--nav-active-foreground))",
           "active-icon": "hsl(var(--nav-active-icon))",
           indicator: "hsl(var(--nav-indicator))",
+          hover: "hsl(var(--nav-hover))",
+          "hover-foreground": "hsl(var(--nav-hover-foreground))",
+          ring: "hsl(var(--nav-ring))",
         },
         glass: {
           DEFAULT: "hsl(var(--glass))",

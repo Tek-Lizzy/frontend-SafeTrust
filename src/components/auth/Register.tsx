@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { auth } from "@/lib/firebase";
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { setSessionCookie } from "@/lib/auth/session";
+import { resolveRedirectPath } from "@/lib/auth/redirect";
 import {
   AuthMotion,
   AuthMotionPanel,
@@ -52,6 +53,16 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Validated return path: external // and /\ targets fall back to the
+  // default, exactly like the login form does.
+  const redirectTo = resolveRedirectPath(
+    searchParams.get("redirect"),
+    "/dashboard/escrow-dashboard",
+  );
+  const keep = searchParams.get("redirect")
+    ? `?redirect=${encodeURIComponent(redirectTo)}`
+    : "";
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -119,7 +130,9 @@ export default function RegisterPage() {
         duration: 4000,
       });
 
-      router.push("/login");
+      // Keep the return path so the login after sign-up lands on the page
+      // the user originally asked for.
+      router.push(`/login${keep}`);
     } catch (err: unknown) {
       if (err instanceof FirebaseError) {
         toast.error(
@@ -160,7 +173,7 @@ export default function RegisterPage() {
             </AuthMotionItem>
 
             <GoogleSignInButton
-              redirectTo="/dashboard/escrow-dashboard"
+              redirectTo={redirectTo}
               label="Sign up with Google"
               disabled={isAnyAuthLoading}
               onLoadingChange={setIsGoogleLoading}
@@ -221,16 +234,20 @@ export default function RegisterPage() {
                 <div className="flex gap-2">
                   <select
                     name="country-code"
+                    aria-label="Country code"
                     value={phoneCountryCode}
-                    aria-label="Phone country code"
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm sm:w-32"
-                    onChange={(event) => {
-                      setPhoneCountryCode(event.target.value);
+                    onChange={(e) => {
+                      setPhoneCountryCode(e.target.value);
                       clearError();
                     }}
+                    className="flex h-9 w-full sm:w-32 items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900"
                   >
                     {COUNTRY_CODES.map(({ code, country, flag }) => (
-                      <option key={code} value={code}>
+                      <option
+                        key={code}
+                        value={code}
+                        className="dark:bg-gray-900 text-foreground"
+                      >
                         {flag} {code} — {country}
                       </option>
                     ))}
@@ -258,21 +275,46 @@ export default function RegisterPage() {
                 <select
                   id="location"
                   name="country-name"
+                  aria-label="Location"
                   autoComplete="country-name"
                   value={location}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  onChange={(event) => {
-                    setLocation(event.target.value);
+                  onChange={(e) => {
+                    setLocation(e.target.value);
                     clearError();
                   }}
+                  className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900"
                 >
-                  <option value="" disabled>
+                  <option
+                    value=""
+                    disabled
+                    className="dark:bg-gray-900 text-foreground"
+                  >
                     Select your location
                   </option>
-                  <option value="cr">Costa Rica</option>
-                  <option value="us">United States</option>
-                  <option value="mx">Mexico</option>
-                  <option value="es">Spain</option>
+                  <option
+                    value="cr"
+                    className="dark:bg-gray-900 text-foreground"
+                  >
+                    Costa Rica
+                  </option>
+                  <option
+                    value="us"
+                    className="dark:bg-gray-900 text-foreground"
+                  >
+                    United States
+                  </option>
+                  <option
+                    value="mx"
+                    className="dark:bg-gray-900 text-foreground"
+                  >
+                    Mexico
+                  </option>
+                  <option
+                    value="es"
+                    className="dark:bg-gray-900 text-foreground"
+                  >
+                    Spain
+                  </option>
                 </select>
               </AuthMotionItem>
 
@@ -330,8 +372,11 @@ export default function RegisterPage() {
 
             <AuthMotionItem className="text-center text-sm">
               Already have an account?{" "}
-              <Link href="/login" className="text-primary hover:underline">
-                Sign in
+              <Link
+                href={`/login${keep}`}
+                className="text-primary hover:underline"
+              >
+                Log in
               </Link>
             </AuthMotionItem>
           </AuthMotionPanel>

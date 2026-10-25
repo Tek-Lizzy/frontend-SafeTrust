@@ -1,5 +1,14 @@
-import type { ClientEnv } from "./client-schema";
 import { z } from "zod";
+import { isValidEd25519PublicKey } from "@/lib/stellar/strkey";
+
+// Keep this module free of `@stellar/stellar-sdk`: it is reached from the root
+// layout, error boundaries and Sentry instrumentation, so the SDK would land in
+// every route's first-load JS and blow the FE-54 bundle budgets.
+const stellarAddressSchema = z
+  .string()
+  .refine((val) => isValidEd25519PublicKey(val), {
+    message: "Invalid Stellar public key",
+  });
 
 const defaultTrustlessApiUrl =
   process.env.NODE_ENV === "production"
@@ -9,7 +18,11 @@ const defaultTrustlessApiUrl =
 const defaultTrustlessNetwork =
   process.env.NODE_ENV === "production" ? "mainnet" : "testnet";
 
-const runtimeClientSchema = z.object({
+/**
+ * Client-safe config. Each key must be referenced *statically* (process.env.NEXT_PUBLIC_X)
+ * so Next.js can inline it at build time. Never spread process.env.
+ */
+export const clientSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
@@ -27,9 +40,9 @@ const runtimeClientSchema = z.object({
   NEXT_PUBLIC_TRUSTLESS_NETWORK: z
     .enum(["testnet", "mainnet"])
     .default(defaultTrustlessNetwork),
-  NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS: z.string().optional(),
-  NEXT_PUBLIC_DISPUTE_RESOLVER_ADDRESS: z.string().optional(),
-  NEXT_PUBLIC_USDC_ISSUER: z.string().optional(),
+  NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS: stellarAddressSchema.optional(),
+  NEXT_PUBLIC_DISPUTE_RESOLVER_ADDRESS: stellarAddressSchema.optional(),
+  NEXT_PUBLIC_USDC_ISSUER: stellarAddressSchema.optional(),
   NEXT_PUBLIC_HASURA_GRAPHQL_URL: z
     .string()
     .url()
@@ -54,10 +67,11 @@ const runtimeClientSchema = z.object({
   NEXT_PUBLIC_API_KEY: z.string().optional(),
 });
 
-/**
- * Client-safe config. Each key must be referenced *statically* (process.env.NEXT_PUBLIC_X)
- * so Next.js can inline it at build time. Never spread process.env.
- */
+const runtimeClientSchema = clientSchema.extend({
+  NEXT_PUBLIC_PLATFORM_WALLET_ADDRESS: z.string().optional(),
+  NEXT_PUBLIC_DISPUTE_RESOLVER_ADDRESS: z.string().optional(),
+});
+
 function readClientEnv() {
   return {
     NODE_ENV: process.env.NODE_ENV,
@@ -102,6 +116,8 @@ function readClientEnv() {
   };
 }
 
+export type ClientEnv = z.infer<typeof clientSchema>;
+
 function parseClientEnvValue<K extends keyof ClientEnv>(key: K): ClientEnv[K] {
   return runtimeClientSchema.shape[key].parse(
     readClientEnv()[key],
@@ -110,7 +126,7 @@ function parseClientEnvValue<K extends keyof ClientEnv>(key: K): ClientEnv[K] {
 
 export const clientEnv = new Proxy({} as ClientEnv, {
   get(_target, prop: string | symbol) {
-    if (typeof prop === "string" && prop in runtimeClientSchema.shape) {
+    if (typeof prop === "string" && prop in clientSchema.shape) {
       return parseClientEnvValue(prop as keyof ClientEnv);
     }
     return undefined;
