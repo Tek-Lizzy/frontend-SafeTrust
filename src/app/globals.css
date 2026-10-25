@@ -24,7 +24,7 @@
     --action-foreground: 222.2 47.4% 11.2%;
     --action-border: 214.3 31.8% 85%;
     --action-hover: 210 40% 98%;
-    --nav-active: 0 0% 100%;
+    --nav-active: 210 40% 96.1%;
     --nav-active-foreground: 222.2 47.4% 11.2%;
     --nav-active-icon: 17.5 88.3% 40.4%;
     --nav-indicator: 20.5 90.2% 48.2%;
@@ -192,7 +192,7 @@ html [data-sonner-toaster][data-sonner-theme="light"] {
   @media (forced-colors: active) {
     .scrollbar-soft,
     :root:has(main.home-page) {
-      scrollbar-color: auto;
+      scrollbar-width: auto;
     }
   }
 }
