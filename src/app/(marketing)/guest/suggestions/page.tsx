@@ -142,7 +142,7 @@ function GuestSuggestionsContent() {
                     key={apt.id}
                     className={cn(
                       "relative flex w-72 shrink-0 items-start gap-2 rounded-xl border p-3 transition-colors lg:w-full",
-                      selectedId === apt.id
+                      selected.id === apt.id
                         ? "border-orange-400 bg-orange-50 dark:bg-orange-900/10"
                         : "border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800",
                     )}
@@ -159,7 +159,7 @@ function GuestSuggestionsContent() {
                           setSelectedId(apt.id);
                         }
                       }}
-                      aria-pressed={selectedId === apt.id}
+                      aria-pressed={selected.id === apt.id}
                       aria-label={`Select ${apt.name}`}
                       className="flex min-w-0 flex-1 items-start gap-2 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
                     >

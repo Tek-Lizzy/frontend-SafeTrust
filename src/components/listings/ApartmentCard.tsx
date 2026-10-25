@@ -162,7 +162,7 @@ export default function ApartmentCard({
           <Button
             asChild
             variant="outline"
-            className="relative z-10 mt-2 w-full border-orange-700 text-orange-700 hover:bg-orange-50 dark:border-action-border dark:text-action-foreground dark:hover:bg-action-hover font-semibold"
+            className="relative z-10 mt-2 w-full border-orange-700 text-orange-700 hover:bg-orange-50 dark:border-action-border dark:text-foreground dark:hover:bg-muted font-semibold"
           >
             <Link href={`/dashboard/messages/${conversationId}`}>
               <MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />
