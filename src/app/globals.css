@@ -48,7 +48,7 @@
     --chart-4: 47.9 95.8% 53.1%;
     --chart-5: 0 84.2% 60.2%;
     --scrollbar-track: 210 40% 96.1%;
-    --scrollbar-thumb: 215 16% 47% / 0.45;
+    --scrollbar-thumb: 215 16% 47%;
     --scrollbar-thumb-hover: 20.5 90.2% 48.2%;
   }
 
@@ -94,7 +94,7 @@
     --chart-4: 47.9 95.8% 53.1%;
     --chart-5: 0 84.2% 60.2%;
     --scrollbar-track: 222 40% 14%;
-    --scrollbar-thumb: 24.6 95% 53.1% / 0.45;
+    --scrollbar-thumb: 24.6 95% 53.1%;
     --scrollbar-thumb-hover: 27 96% 61%;
   }
 
