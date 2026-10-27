@@ -153,7 +153,7 @@ describe("GuestSuggestionsPage – Message host", () => {
       screen.getByRole("button", { name: /Select La Estación Flat/ }),
     ).toHaveAttribute("aria-pressed", "false");
     expect(
-      screen.queryByRole("button", { name: /Casa Níspero/ }),
+      screen.queryByRole("button", { name: /^Select Casa Níspero/ }),
     ).not.toBeInTheDocument();
   });
 

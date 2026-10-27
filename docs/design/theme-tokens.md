@@ -1,8 +1,17 @@
 # Theme tokens
 
+SafeTrust themes are driven by CSS custom properties in `src/app/globals.css`
+and mapped to Tailwind utilities in `tailwind.config.ts`. `next-themes` adds
+`.dark` to the `<html>` element; a custom `light:` variant
+(`:root:not(.dark) &`) targets every other theme.
+
 SafeTrust uses neutral surfaces and orange brand details in both themes. Light
 mode keeps orange restrained; dark mode uses orange for primary actions and
 selected navigation. Guest routes use the same theme as the rest of the app.
+
+Motion is intentionally small and purposeful. It reuses the existing lazy
+motion infrastructure (`LazyMotionProvider` / `useMotionEnabled`,
+`DashboardReveal`, `motion/react-m`) and never adds an animation dependency.
 
 ## Token values
 
@@ -93,6 +102,25 @@ underlying content can affect the final result.
 | Light orange-700 text on white                 | White page/card                            |  5.2:1 | ≥ 4.5:1 ✓     |
 | Light orange-600 focus ring on white           | White page/card                            |  3.6:1 | ≥ 3:1 ✓       |
 | Light slate-900 text on white button           | White `--action`                           | 17.9:1 | ≥ 4.5:1 ✓     |
+
+## Motion inventory
+
+| Surface             | Effect                       | Duration | Themes | Reduced motion |
+| ------------------- | ---------------------------- | -------- | ------ | -------------- |
+| Button default/outline | lift 1px + shadow         | 150 ms   | light  | colour only    |
+| Nav item            | colour + indicator scale      | 150–200 ms | both | colour only    |
+| Glass panel entry   | fade + 6px                    | 220 ms   | both   | none           |
+
+## Motion rules
+
+- Only `transform`, `opacity`, and colour/shadow properties animate; size,
+  padding, and border width never change, so layout stays put.
+- Light-mode lift and press motion is gated by `motion-safe:` and the `light:`
+  variant, so dark mode keeps quiet colour transitions only.
+- Reduced motion removes all transforms. Loading and pending states still
+  communicate progress through text (for example, "Saving…") and spinners.
+- Panel entry runs once per route. Changing the theme does not remount the
+  page, reset forms, or replay the entry.
 
 ## Do / don't
 
